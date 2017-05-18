@@ -1,4 +1,4 @@
-nclude <unistd.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <config.h>
@@ -21,8 +21,7 @@ nclude <unistd.h>
 #include <sys/mman.h>
 
 
-/* digitpic <freetype_file> */
 int main(int argc, char **argv)
-{	
-	
+{
+	return 0;
 }

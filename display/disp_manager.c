@@ -156,6 +156,82 @@ int AllocVideoMem(int iNum)
 	return 0;
 }
 
+PT_VideoMem GetVideoMem(int iID, int bCur)
+{
+	PT_VideoMem ptTmp = g_ptVideoMemHead;
+	
+	while (ptTmp)
+	{
+		if ((ptTmp->iID == iID) && (ptTmp->eVideoMemState = VMS_FREE))
+		{
+			ptTmp->eVideoMemState = bCur ? VMS_USED_FOR_CUR : VMS_USED_FOR_PREPARE;
+			return ptTmp;
+		}
+		ptTmp = ptTmp->ptNext;
+	}
+	
+	PT_VideoMem ptTmp = g_ptVideoMemHead;
+	while (ptTmp)
+	{
+		if ((ptTmp->eVideoMemState == VMS_FREE) && (pTmp->ePixelState == PS_BLANK))
+		{
+			ptTmp->iID = iID;
+			ptTmp->eVideoMemState = bCur ? VMS_USED_FOR_CUR : VMS_USED_FOR_PREPARE;
+			return ptTmp;
+		}
+		ptTmp = ptTmp->ptNext;
+	}
+	
+	PT_VideoMem ptTmp = g_ptVideoMemHead;
+	while (ptTmp)
+	{
+		if (ptTmp->eVideoMemState == VMS_FREE)
+		{
+			ptTmp->iID = iID;
+			ptTmp->ePixelState = PS_BLANK;
+			ptTmp->eVideoMemState = bCur ? VMS_USED_FOR_CUR : VMS_USED_FOR_PREPARE;
+			return ptTmp;
+		}
+		ptTmp = ptTmp->ptNext;
+	}
+	
+	if (bCur)
+	{
+		ptTmp = g_ptVideoMemHead;
+		ptTmp->iID = iID;
+		ptTmp->ePicState = PS_BLANK;
+    	ptTmp->eVideoMemState = bCur ? VMS_USED_FOR_CUR : VMS_USED_FOR_PREPARE;
+    	return ptTmp;
+	}
+	
+	return NULL;
+}
+
+void PutVideoMem(PT_VideoMem ptVideoMem)
+{
+	ptVideoMem->eVideoMemState = VMS_FREE;
+	if (ptVideoMem->iID == -1)
+	{
+		ptVideoMem->ePixelState = PS_BLANK;
+	}
+}
+
+PT_VideoMem GetDevVideoMem(void)
+{
+	ptVideoMem ptTmp = g_ptVideoMemHead;
+	
+	while (ptTmp)
+	{
+		if (ptTmp->bDevFrameBuffer)
+		{
+			return ptTmp;
+		}
+		ptTmp = ptTmp->ptNext;
+	}
+	
+	return NULL;
+}
+
 int DisplayInit(void)
 {
 	int iError;

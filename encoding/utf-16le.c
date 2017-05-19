@@ -6,7 +6,7 @@ static int isUtf16leCoding(unsigned char *pucBufHead);
 static int Utf16leGetCodeFrmBuf(unsigned char *pucBufStart, unsigned char *pucBufEnd, unsigned int *pdwCode);
 
 static T_EncodingOpr g_tUtf16leEncodingOpr = {
-	.name          = "utf-16l",
+	.name          = "utf-16le",
 	.iHeadLen      = 2,
 	.isSupport     = isUtf16leCoding,
 	.GetCodeFrmBuf = Utf16leGetCodeFrmBuf,

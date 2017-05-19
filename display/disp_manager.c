@@ -4,6 +4,7 @@
 
 static PT_DispOpr g_ptDispOprHead;
 static PT_DispOpr g_ptDefaultDispOpr;
+static PT_VideoMem g_ptVideoMemHead;
 
 int RegisterDispOpr(PT_DispOpr ptDispOpr)
 {
@@ -85,6 +86,74 @@ int GetDispResolution(int *piXres, int *piYres, int *piBpp)
 	{
 		return -1;
 	}
+}
+
+int AllocVideoMem(int iNum)
+{
+	int i;
+	int iXres = 0;
+	int iYres = 0;
+	int iBpp  = 0;
+	
+	int iVMSize;
+	int iLineBytes;
+	
+	PT_VideoMem ptNew;
+	
+	GetDispResolution(&iXres, &iYres, &iBpp);
+	iVMSize = iXres * iBpp / 8;
+	iLineBytes = iXres * iBpp / 8;
+	
+	ptNew = malloc(sizeof(T_VideoMem));
+	if (ptNew == NULL)
+	{
+		return -1;
+	}
+	
+	ptNew->tPixelDatas.aucPixelDatas = g_ptDefaultDispOpr->pucDispMem;
+	
+	ptNew->iID = 0;
+	ptNew->bDevFrameBuffer = 1;
+	ptNew->eVideoMemState  = VMS_FREE;
+	ptNew->ePicState       = PS_BLANK;
+	ptNew->tPixelDatas.iWidth  = iXres;
+	ptNew->tPixelDatas.iHeight = iYres;
+	ptNew->tPixelDatas.iBpp    = iBpp;
+	ptNew->tPixelDatas.iLineBytes  = iLineWidth;
+	ptNew->tPixelDatas.iTotalBytes = iVMSize;
+	
+	if (iNum != 0)
+	{
+		ptNew->eVideoMemState = VMS_USED_FOR_CUR;
+	}
+	
+	ptNew->ptNext   = g_ptVideoMemHead;
+	g_ptVideoMemHead = ptNew;
+	
+	for (i = 0; i < iNum; i++)
+	{
+		ptNew = malloc(sizeof(T_VideoMem) + iVMSize)
+		if (ptNew == NULL)
+		{
+			return -1;
+		}
+		
+		ptNew->tPixelDatas.aucPixelDatas = (unsigned char *)(ptNew + 1);
+		ptNew->iID = 0;
+		ptNew->bDevFrameBuffer = 0;
+		ptNew->eVideoMemState  = VMS_FREE;
+		ptNew->ePicState       = PS_BLANK;
+		ptNew->tPixelDatas.iWidth = iXres;
+		ptNew->tPixelDatas.iHeight = iYres;
+		ptNew->tPixelDatas.iBpp    = iBpp;
+		ptNew->tPixelDatas.iLineBytes = iLineBytes;
+		ptNew->tPixelDatas.iTotalBytes = iVMSize;
+
+		ptNew->ptNext = g_ptVideoMemHead;
+		g_ptVideoMemHead = ptNew;
+	}
+	
+	return 0;
 }
 
 int DisplayInit(void)

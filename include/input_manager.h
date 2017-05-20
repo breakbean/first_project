@@ -25,4 +25,12 @@ typedef struct InputOpr {
 	struct InputOpr *ptNext;
 }T_InputOpr *PT_InputOpr;
 
+int InputInit(void);
+int RegisterInputOpr(PT_InputOpr ptInputOpr);
+void ShowInputOpr(void);
+int AllInputDevicesInit(void);
+int GetInputEvent(PT_InputEvent ptInputEvent);
+int StdinInit(void);
+int TouchScreenInit(void);
+
 #endif /* __INPUT_MANAGER_H__ */

@@ -57,6 +57,105 @@ PT_DebugOpr GetDebugOpr(char *pcName)
 	return NULL;
 }
 
+int SetDbgLevel(char *strBuf)
+{
+	g_iDbgLevelLimit = strBuf[9] - '0';
+	return 0;
+}
+
+int SetDbgChanel(char *strBuf)
+{
+	char *pStrTmp;
+	char strName[100];
+	PT_DebugOpr ptTmp;
+	
+	pStrTmp = strchr(strBuf, "=");
+	if (!pStrTmp)
+	{
+		return -1;
+	}
+	else
+	{
+		strncpy(strName, strBuf, pStrTmp-strBuf);
+		strName[pStrTmp-strBuf] = '\0';
+		ptTmp = GetDebugOpr(strName);
+		if (!ptTmp)
+		{
+			return -1;
+		}
+		
+		if (pStrTmp[1] == '0')
+			ptTmp->isCanUse = 0;
+		else
+			ptTmp->isCanUse = 1;
+		
+		return 0;
+	}
+}
+
+int DebugPrint(const char *pcFormat, ...)
+{
+	char strTmpBuf[1000];
+	char *pcTmp;
+	va_list tArg;
+	int iNum;
+	PT_DebugOpr ptTmp = g_ptDebugOprHead;
+	int dbglevel = DEFAULT_DBGLEVEL;
+
+	va_start (tArg, pcFormat);
+	iNum = vsprintf (strTmpBuf, pcFormat, tArg);
+	va_end (tArg);
+	strTmpBuf[iNum] = '\0';
+
+
+	pcTmp = strTmpBuf;
+	
+	if ((strTmpBuf[0] == '<') && (strTmpBuf[2] == '>'))
+	{
+		dbglevel = strTmpBuf[1] - '0';
+		if (dbglevel >= 0 && dbglevel <= 9)
+		{
+			pcTmp = strTmpBuf + 3;
+		}
+		else
+		{
+			dbglevel = DEFAULT_DBGLEVEL;
+		}
+	}
+
+	if (dbglevel > g_iDbgLevelLimit)
+	{
+		return -1;
+	}
+ 
+	while (ptTmp)
+	{
+		if (ptTmp->isCanUse)
+		{
+			ptTmp->DebugPrint(pcTmp);
+		}
+		ptTmp = ptTmp->ptNext;
+	}
+
+	return 0;
+}
+
+int InitDebugChanel(void)
+{
+	PT_DebugOpr ptTmp = g_ptDebugOprHead;
+	
+	while (ptTmp)
+	{
+		if (ptTmp->isCanUse && ptTmp->DebugInit)
+		{
+			ptTmp->DebugInit();
+		}
+		ptTmp = ptTmp->ptNext;
+	}
+	
+	return 0;
+}
+
 int DebugInit(void)
 {
 	int iError;
